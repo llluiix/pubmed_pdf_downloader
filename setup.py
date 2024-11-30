@@ -5,7 +5,7 @@ setup(
     name='pubmed_pdf_downloader',
     version='0.1.0',
     description='A package to download PDFs from PubMed Central using PMCIDs.',
-    author='Your Name',
+    author='Arun Das',
     author_email='ard212@pitt.edu',
     url='https://github.com/arundasan91/pubmed_pdf_downloader',
     packages=find_packages(),
