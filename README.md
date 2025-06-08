@@ -19,7 +19,7 @@ pip install pubmed_pdf_downloader
 ## Usage
 To use the tool from the command line:
 ```
-pubmed-downloader -pmf pmcids.txt -out fetched_pdfs -batch 5 -delay 10
+pubmed-pdf-downloader -pmf pmcids.txt -out fetched_pdfs -batch 5 -delay 10
 ```
 This command will download PDFs listed in pmcids.txt to the fetched_pdfs directory, with a delay of 10 seconds after every 5 downloads.
 
