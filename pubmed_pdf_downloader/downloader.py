@@ -16,9 +16,25 @@ def save_pdf_from_url(pdf_url, directory, name, headers):
     try:
         response = requests.get(pdf_url, headers=headers, allow_redirects=True)
         response.raise_for_status()
+        
+        # Check if content is actually a PDF
+        if not response.content.startswith(b'%PDF'):
+            # Try alternative URL if we got HTML instead of PDF
+            content_str = response.content.decode('utf-8', errors='ignore')
+            if 'Preparing to download' in content_str:
+                # Extract PMC ID and try Europe PMC service
+                import re
+                pmc_match = re.search(r'PMC\d+', pdf_url)
+                if pmc_match:
+                    pmc_id = pmc_match.group()
+                    alt_url = f"https://europepmc.org/backend/ptpmcrender.fcgi?accid={pmc_id}&blobtype=pdf"
+                    print(f"** Trying alternative URL: {alt_url}")
+                    response = requests.get(alt_url, headers=headers, allow_redirects=True)
+                    response.raise_for_status()
+        
         with open(f'{directory}/{name}.pdf', 'wb') as f:
             f.write(response.content)
-        print(f"** Successfully fetched and saved PDF for PMCID {name}.")
+        print(f"** Successfully fetched and saved PDF for PMCID {name}. File size: {len(response.content)} bytes")
     except requests.RequestException as e:
         print(f"** Failed to download PDF from {pdf_url}: {e}")
 
@@ -105,6 +121,16 @@ def uchicago_press(req, soup, headers):
         return get_main_url(req.url) + possible_links[0].get('href')
     return None
 
+def europe_pmc_service(req, soup, headers):
+    """Use Europe PMC service for reliable PDF downloads"""
+    # Extract PMC ID from the current URL
+    pmc_match = re.search(r'PMC\d+', req.url)
+    if pmc_match:
+        pmc_id = pmc_match.group()
+        print(f"** Fetching reprint using the 'Europe PMC Service' finder for {pmc_id}...")
+        return f"https://europepmc.org/backend/ptpmcrender.fcgi?accid={pmc_id}&blobtype=pdf"
+    return None
+
 def main():
     parser = argparse.ArgumentParser()
     parser._optionals.title = "Flag Arguments"
@@ -149,6 +175,7 @@ def main():
             pmcids = [x[0] for x in pmcids]
 
     finders = [
+        'europe_pmc_service',
         'generic_citation_labelled',
         'pubmed_central_v2',
         'acs_publications',
