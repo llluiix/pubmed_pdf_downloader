@@ -48,7 +48,7 @@ def fetch(pmcid, finders, name, headers, error_pmids, args):
     try:
         req = requests.get(uri, headers=headers)
         req.raise_for_status()
-        soup = BeautifulSoup(req.content, 'lxml')
+        soup = BeautifulSoup(req.content, 'html.parser')
         for finder in finders:
             print(f"Trying {finder}")
             pdf_url = eval(finder)(req, soup, headers)
@@ -105,7 +105,7 @@ def science_direct(req, soup, headers):
         new_uri = urllib.parse.unquote(soup.find_all('input')[0].get('value'))
         req = requests.get(new_uri, allow_redirects=True, headers=headers)
         req.raise_for_status()
-        soup = BeautifulSoup(req.content, 'lxml')
+        soup = BeautifulSoup(req.content, 'html.parser')
         possible_links = soup.find_all('meta', attrs={'name': 'citation_pdf_url'})
         if possible_links:
             print("** Fetching reprint using the 'Science Direct' finder...")
