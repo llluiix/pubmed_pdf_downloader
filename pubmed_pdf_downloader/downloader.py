@@ -39,7 +39,7 @@ def save_pdf_from_url(pdf_url, directory, name, headers):
         print(f"** Failed to download PDF from {pdf_url}: {e}")
 
 def fetch(pmcid, finders, name, headers, error_pmids, args):
-    uri = f"https://www.ncbi.nlm.nih.gov/pmc/articles/{pmcid.strip()}"
+    uri = f"https://www.ncbi.nlm.nih.gov/{pmcid.strip()}"
     success = False
     if os.path.exists(f"{args['out']}/{pmcid}.pdf"):
         print(f"** Reprint #{pmcid} already downloaded and in folder; skipping.")
